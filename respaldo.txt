@@ -1,0 +1,37 @@
+@app.put('/update/evento/{evento_id}',tags=["Eventos"],response_model=EventoBase,status_code=status.HTTP_201_CREATED)
+async def updateEvent(evento_id:int, response_to_update : EventoBase,db: db_dependency):
+    try:
+        """
+        Updates an existing event record in the database.
+
+        - Path parameter: `evento_id` (int) - The unique ID of the event to be updated.
+        - Request body: `updated_data` (Events) - A JSON object containing the updated event details.
+        - Returns: The updated event record (Events) upon successful update.
+        - Raises:
+            - HTTPException with status code 404 (Not Found) if the event with the provided ID is not found.
+        """
+          
+    
+        mi_evento_update = db.query(models.Events).where(models.Events.id == evento_id ).first()
+                
+        if mi_evento_update is None:
+                    # if Evento this empty return 404
+            return  HTTPException(status_code=404,detail="Event not found")
+                
+                #go to update the evento
+        mi_evento_update.evento = response_to_update.evento
+        mi_evento_update.description = response_to_update.description
+        mi_evento_update.fecha_evento = response_to_update.fecha_evento
+        mi_evento_update.hora_evento = response_to_update.hora_evento
+                
+        # execute update
+        db.commit()
+        db.refresh(mi_evento_update)  # Actualiza el objeto en la sesión
+ 
+        return mi_evento_update
+                
+    
+    except Exception as e:
+    # Log the error for troubleshooting
+        error = f"Error updating event: {e}"
+    raise HTTPException(status_code=500, detail=f"Internal server error:{error}")
