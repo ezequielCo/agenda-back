@@ -2,11 +2,12 @@ from fastapi import FastAPI,HTTPException, Depends,status,APIRouter, Depends
 from pydantic  import BaseModel ,Field
 from typing import Annotated
 import models
+
 from database import engine,SessionLocal
 from sqlalchemy.orm import Session
 from datetime import date, time,datetime  
 from fastapi.middleware.cors import CORSMiddleware
-
+from routes.auth import get_current_user
 
 router = APIRouter()
 
@@ -29,7 +30,7 @@ def get_db():
             db.close()
 
 db_dependency = Annotated[Session,Depends(get_db)]
-
+user_dependency =Annotated[dict,Depends(get_current_user)]
 
 
 
